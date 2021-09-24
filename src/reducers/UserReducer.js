@@ -4,7 +4,7 @@ const initialState = {
     token:'',
     user:{},
     register:{},
-    photo:{},
+    photo:'',
     notifications:[]
 }
 

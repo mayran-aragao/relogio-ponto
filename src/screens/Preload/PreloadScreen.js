@@ -7,7 +7,7 @@ import {
      Container,
      
 } from './Style' 
-
+import PushNotification from "react-native-push-notification";
 
 const PreloadScreen = () => {
     const navigation = useNavigation()
@@ -45,6 +45,7 @@ const PreloadScreen = () => {
 
         checkLogin()
     },[])
+
     
     return (
         <Container >

@@ -13,6 +13,8 @@ const App = () => {
 
     const [context, dispatch] = useStateValue();
 
+    
+
     useEffect(() => {
         const recharge = async () => {
             const user = await AsyncStorage.getItem('user')

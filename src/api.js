@@ -39,6 +39,9 @@ export default {
     getNotification: async () => {
         return await AsyncStorage.getItem('notifications')
     },
+    getPhoto: async () => {
+        return await AsyncStorage.getItem('photo')
+    },
     validadeToken: async () => {
         let token = await AsyncStorage.getItem('token')
         let json = await request('post', '/validar',{}, token)
@@ -56,7 +59,6 @@ export default {
         await AsyncStorage.removeItem('token')
         await AsyncStorage.removeItem('user')
         await AsyncStorage.removeItem('register')
-        await AsyncStorage.removeItem('photo')
     },
     getRegister: async(startDate,endDate,matricula) => {
         let token = await AsyncStorage.getItem('token')

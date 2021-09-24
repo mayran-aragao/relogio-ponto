@@ -28,6 +28,7 @@
     "react-native-image-picker": "^4.1.1",
     "react-native-linear-gradient": "^2.5.6",
     "react-native-permissions": "^3.0.5",
+    "react-native-push-notification": "^8.1.0",
     "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "^3.7.2",
     "react-native-unimodules": "^0.14.8",

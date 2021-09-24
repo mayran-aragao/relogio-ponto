@@ -7,6 +7,7 @@ import { Input, Button, Overlay, Avatar } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import JailMonkey from 'jail-monkey'
+import PushNotification from 'react-native-push-notification'
 import {
     Container,
     Header,
@@ -40,16 +41,18 @@ const LoginScreen = ({ navigation }) => {
     const [context, dispatch] = useStateValue()
 
     useEffect(() => {
+        createChannels()
         let verify = JailMonkey.canMockLocation()
         setBlock(verify)
     }, [])
 
+    const createChannels = () => {
+        PushNotification.createChannel({
+            channelId:"test-channel",
+            channelName:"Test Channel"
+        })
+    }
 
-    const DismissKeyboard = ({ children }) => (
-        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            {children}
-        </TouchableWithoutFeedback>
-    );
     const handleSignIn = async () => {
         if (matricula && email) {
             setLoading(true)

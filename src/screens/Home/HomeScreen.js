@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useReducer } from 'react';
 import { StatusBar, Platform, ActivityIndicator, PermissionsAndroid } from 'react-native';
 import { Divider, Button, ListItem, Overlay } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -8,6 +8,7 @@ import moment from 'moment-with-locales-es6'
 import Alerta from 'react-native-awesome-alerts';
 import JailMonkey from 'jail-monkey';
 import { check, PERMISSIONS, RESULTS, request } from 'react-native-permissions'
+
 import {
     Container,
     ClockView,
@@ -48,20 +49,22 @@ const HomeScreen = ({ navigation }) => {
     const [block, setBlock] = useState(false)
 
 
-    useEffect(() => {
-        let verify = JailMonkey.canMockLocation()
-        setBlock(verify)
-    }, [])
+
 
     useEffect(() => {
+        let verify = JailMonkey.canMockLocation()
         getMyLocation()
         chargeRegister()
+        setBlock(verify)
+
         let data = new Date()
         let day = data.getDate()
         let month = data.getMonth() + 1
         let year = data.getFullYear()
+
         setYear(year)
         setDay((day < 10 ? "0" + day : day))
+
         switch (month) {
             case 1:
                 return setMonth("Janeiro")
@@ -102,7 +105,6 @@ const HomeScreen = ({ navigation }) => {
         }
     }, [])
 
-
     useEffect(() => {
 
         const timerFunction = () => {
@@ -126,6 +128,8 @@ const HomeScreen = ({ navigation }) => {
         if (hours >= 18)
             return setMenssage("Boa noite, ")
     }, [hours])
+
+ 
 
 
     const chargeRegister = async () => {
@@ -173,10 +177,9 @@ const HomeScreen = ({ navigation }) => {
                         mock: info.mocked,
                         timestamp: info.timestamp
                     }
-                    console.log(location)
                     setLocation(location);
                 },
-                error => { console.log(error),setError(error.message), setLocation('') },
+                error => { console.log(error), setError(error.message), setLocation('') },
                 {
                     enableHighAccuracy: true,
                     timeout: 5000,
@@ -207,7 +210,6 @@ const HomeScreen = ({ navigation }) => {
     }
 
     const sendRegister = async () => {
-        console.log(location)
         if (location) {
             if (location.latitude <= -5.123 && location.latitude >= -5.127 && location.longitude <= -42.803 && location.longitude >= -42.807 && location.mock == false) {
                 setShow(false)
@@ -305,7 +307,8 @@ const HomeScreen = ({ navigation }) => {
                     titleStyle={{ color: "#5597c8" }}
                     containerStyle={{ width: "100%", padding: 10 }}
                     buttonStyle={{ borderColor: "#5597c8" }}
-                    onPress={() => { getMyLocation(), setShow(true) }}
+                    // onPress={() => { getMyLocation(), setShow(true) }}
+                    onPress={() => { notificacao() }}
                 />
             </Div>
 

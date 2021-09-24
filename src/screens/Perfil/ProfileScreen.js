@@ -7,6 +7,7 @@ import { useStateValue } from '../../contexts/StateContext'
 import Alerta from 'react-native-awesome-alerts';
 import moment from 'moment';
 import { check, PERMISSIONS, RESULTS, request, requestMultiple } from 'react-native-permissions'
+import PushNotification from "react-native-push-notification";
 import {
     Container,
     ListView,
@@ -42,9 +43,47 @@ const ProfileScreen = ({ navigation }, props) => {
 
 
     useEffect(() => {
-        if (!image)
-            take_photo()
-    }, []);
+        take_photo()
+        notificacao()
+    }, [schedule]);
+
+
+    const notificacao = () => {
+        PushNotification.cancelAllLocalNotifications()
+        let year = new Date().getFullYear()
+        let month = new Date().getMonth() + 1
+        let day = new Date().getDate()
+        let hours = new Date().getHours()
+        let minutes = new Date().getMinutes()
+
+        console.log(schedule)
+
+        schedule.map(a => {
+            let now = moment(`${hours}:${minutes}`, "HH:mm").format("HH:mm")
+            if (a < now) {
+                let notif = new Date(`${year}/${month}/${day + 1} ${a}:02`)
+                PushNotification.localNotificationSchedule({
+                    channelId: "test-channel",
+                    title: "Ponto digital",
+                    message: "Está quase na hora de registrar o ponto", // (required)
+                    date: notif, // in 60 secs
+                    // id: a
+                });
+            }
+            if (a > now) {
+                let notif = new Date(`${year}/${month}/${day} ${a}:02`)
+                PushNotification.localNotificationSchedule({
+                    channelId: "test-channel",
+                    title: "Ponto digital",
+                    message: "Está quase na hora de registrar o ponto", // (required)
+                    date: notif, // in 60 secs
+                    // id: 1
+                });
+            }
+
+        })
+        PushNotification.getScheduledLocalNotifications((info) => { console.log(info) })
+    }
 
     const pickImage = async () => {
         requestMultiple([PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE, PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE]).then((statuses) => { });
@@ -64,21 +103,34 @@ const ProfileScreen = ({ navigation }, props) => {
             if (res.assets) {
                 setImage(res.assets[0].base64)
                 let save = await api.save_photo(res.assets[0], user.matricula)
+                let obj = { matricula: user.matricula, base64:res.assets[0].base64 }
+
                 if (save.error === '') {
-                    dispatch({ type: 'setPhoto', payload: { photo: res.assets[0].base64 } })
+                    dispatch({ type: 'setPhoto', payload: { photo: JSON.stringify(obj) } })
                 } else {
                     setShow(true)
                     setError(res.error)
                 }
             }
         });
-        
+
     }
 
 
     const take_photo = async () => {
-        let res = await api.take_photo(user.matricula)
-        setImage(res.base64)
+        let photo = JSON.parse(await api.getPhoto())
+
+        if (photo?.matricula !== user.matricula || !photo) {
+
+            let res = await api.take_photo(user.matricula)
+
+            let obj = { matricula: user.matricula, base64:res.base64 }
+
+            dispatch({ type: 'setPhoto', payload: { photo: JSON.stringify(obj) } })
+
+            return setImage(res.base64)
+        }
+        return setImage(photo.base64)
     }
 
     const logout = async (e) => {
@@ -221,7 +273,7 @@ const ProfileScreen = ({ navigation }, props) => {
                 <TimeView>
                     <Texto>Horário de Notificação</Texto>
                     <Tooltip
-                        popover={<Text>O aplicativo por padrão irá enviar uma notificação 2 minutos antes de cada horario definido abaixo.</Text>}
+                        popover={<Text>(Funcionalidade em Teste) O aplicativo irá enviar uma notificação no horario definido abaixo.</Text>}
                         containerStyle={{ width: "50%" }}
                         height={110}
                         width={150}
