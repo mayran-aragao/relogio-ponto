@@ -20,7 +20,6 @@ export const LoadingArea = styled.View`
 export const RegisterList = styled.FlatList`
     flex:1;
     padding-top: 20px;
-
 `;
 export const Header = styled.View`
     flex-direction: row;
@@ -53,4 +52,17 @@ export const ModalScroll = styled.ScrollView`
 `;
 export const ModalText = styled.Text`
     font-size: 16px;
+`;
+export const Div2 = styled.View`
+    flex-direction: row;
+    align-items: center;
+    justify-content:space-around;
+    width: 100%;
+    flex-wrap: wrap;
+
+`;
+export const Texto = styled.Text`
+    font-size: 16px;
+    padding: 10px;
+    color: #000;
 `;
