@@ -56,7 +56,6 @@ const ProfileScreen = ({ navigation }, props) => {
         let hours = new Date().getHours()
         let minutes = new Date().getMinutes()
 
-        console.log(schedule)
 
         schedule.map(a => {
             let now = moment(`${hours}:${minutes}`, "HH:mm").format("HH:mm")
@@ -82,7 +81,7 @@ const ProfileScreen = ({ navigation }, props) => {
             }
 
         })
-        PushNotification.getScheduledLocalNotifications((info) => { console.log(info) })
+        // PushNotification.getScheduledLocalNotifications((info) => { console.log(info) })
     }
 
     const pickImage = async () => {

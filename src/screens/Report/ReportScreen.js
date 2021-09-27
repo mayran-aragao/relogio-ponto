@@ -150,7 +150,6 @@ const Calendar = () => {
                             { useNativeDriver: true }
                         )}
                         renderItem={({ item, index }) => {
-                            console.log(item)
                             const inputRange = [
                                 -1,
                                 0,

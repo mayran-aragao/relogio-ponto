@@ -179,7 +179,7 @@ const HomeScreen = ({ navigation }) => {
                     }
                     setLocation(location);
                 },
-                error => { console.log(error), setError(error.message), setLocation('') },
+                error => { setError(error.message), setLocation('') },
                 {
                     enableHighAccuracy: true,
                     timeout: 5000,
@@ -308,7 +308,7 @@ const HomeScreen = ({ navigation }) => {
                     containerStyle={{ width: "100%", padding: 10 }}
                     buttonStyle={{ borderColor: "#5597c8" }}
                     // onPress={() => { getMyLocation(), setShow(true) }}
-                    onPress={() => { notificacao() }}
+                    onPress={() => { setShow(true) }}
                 />
             </Div>
 
