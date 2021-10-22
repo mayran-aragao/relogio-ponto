@@ -1,6 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const baseURL = 'http://172.16.45.106:3003'
+const baseURL = 'http://172.16.45.121:3003'
+
+function timeout(ms, promise) {
+    return new Promise(function (resolve, reject) {
+        setTimeout(function () {
+            reject(new Error("timeout"))
+        }, ms)
+        promise.then(resolve, reject)
+    })
+}
 
 const request = async (method, endpoint, params, token = null) => {
     method = method.toLowerCase()
@@ -19,13 +28,18 @@ const request = async (method, endpoint, params, token = null) => {
             break
     }
 
-    let headers = {'Content-Type': 'application/json','Accept': 'application/json',}
-    if(token) {
+    let headers = { 'Content-Type': 'application/json', 'Accept': 'application/json', }
+    if (token) {
         headers.Authorization = `Bearer ${token}`
     }
-
-    let req = await fetch(fullUrl, { method, headers, body})
-    let json = await req.json()
+    let json = timeout(5000, fetch(fullUrl, { method, headers, body })).then(async (response) => {
+        let json = await response.json()
+        return json
+    }).catch(async (error) => {
+        let json = {error:"Request timeout"}
+        return json
+    })
+    
     return json
 }
 
@@ -44,45 +58,45 @@ export default {
     },
     validadeToken: async () => {
         let token = await AsyncStorage.getItem('token')
-        let json = await request('post', '/validar',{}, token)
+        let json = await request('post', '/validar', {}, token)
         return json
     },
     login: async (email, matricula) => {
-        let json = await request('post', '/signin',{email,matricula})
+        let json = await request('post', '/signin', { email, matricula })
         return json
     },
     register: async (email, matricula) => {
-        let json = await request('post', '/signup',{email,matricula})
+        let json = await request('post', '/signup', { email, matricula })
         return json
     },
-    logout: async() => {
+    logout: async () => {
         await AsyncStorage.removeItem('token')
         await AsyncStorage.removeItem('user')
         await AsyncStorage.removeItem('register')
     },
-    getRegister: async(startDate,endDate,matricula) => {
+    getRegister: async (startDate, endDate, matricula) => {
         let token = await AsyncStorage.getItem('token')
-        let json = await request('post','/buscar_periodo',{startDate,endDate,matricula},token)
+        let json = await request('post', '/buscar_periodo', { startDate, endDate, matricula }, token)
         return json
     },
-    getNsr: async(dt_ponto, nr_rep) => {
+    getNsr: async (dt_ponto, nr_rep) => {
         let token = await AsyncStorage.getItem('token')
-        let json = await request('post', '/buscar_nsr',{dt_ponto,nr_rep},token)
+        let json = await request('post', '/buscar_nsr', { dt_ponto, nr_rep }, token)
         return json
     },
-    saveRegister: async(dado) => {
+    saveRegister: async (dado) => {
         let token = await AsyncStorage.getItem('token')
-        let json = await request('post', '/salvar_ponto',dado,token)
+        let json = await request('post', '/salvar_ponto', dado, token)
         return json
     },
-    save_photo: async(photo,matricula) => {
+    save_photo: async (photo, matricula) => {
         let token = await AsyncStorage.getItem('token')
-        let json = await request('post','/add_photo',{photo,matricula},token )
+        let json = await request('post', '/add_photo', { photo, matricula }, token)
         return json
     },
-    take_photo: async(matricula) => {
+    take_photo: async (matricula) => {
         let token = await AsyncStorage.getItem('token')
-        let json = await request('post','/take_photo',{matricula},token )
+        let json = await request('post', '/take_photo', { matricula }, token)
         return json
     }
 }

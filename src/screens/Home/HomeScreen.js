@@ -211,7 +211,8 @@ const HomeScreen = ({ navigation }) => {
 
     const sendRegister = async () => {
         if (location) {
-            if (location.latitude <= -5.123 && location.latitude >= -5.127 && location.longitude <= -42.803 && location.longitude >= -42.807 && location.mock == false) {
+            // if (location.latitude <= -5.123 && location.latitude >= -5.127 && location.longitude <= -42.803 && location.longitude >= -42.807 && location.mock == false)
+            if (location.mock == false) {
                 setShow(false)
                 setLoading(true)
                 let data = new Date()

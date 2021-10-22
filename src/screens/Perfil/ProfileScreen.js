@@ -170,9 +170,9 @@ const ProfileScreen = ({ navigation }, props) => {
                 />
                 <Div>
                     <TextoCard txcolor="#666" >Nome:</TextoCard>
-                    <TextoCard txcolor="#000" >{user.nome.split(" ").length >= 3 ? user.nome.split(" ").filter((e, i) => (i == 0 || i == 2)).join(' ') : user.nome}</TextoCard>
+                    <TextoCard txcolor="#000" >{user.nome.trim().split(" ").length >= 3 ? user.nome.trim().split(" ").filter((e, i) => (i == 0 || i == 2)).join(' ') : user.nome.trim()}</TextoCard>
                     <TextoCard txcolor="#666">Função:</TextoCard>
-                    <TextoCard txcolor="#000">{user.no_funcao.length > 22 ? `${user.no_funcao.substring(0, 3)} ${user.no_funcao.split(' ').slice(1, 5).join(' ')}` : user.no_funcao}</TextoCard>
+                    <TextoCard txcolor="#000">{user.no_funcao.trim().length > 22 ? `${user.no_funcao.trim().substring(0, 3)} ${user.no_funcao.trim().split(' ').slice(1, 5).join(' ')}` : user.no_funcao.trim()}</TextoCard>
                 </Div>
                 <ListView>
                     <Button
