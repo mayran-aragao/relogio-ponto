@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const baseURL = 'https://pontomobile.armazemparaiba.com.br/'
-// const baseURL = 'https://api.github.com/'
+// const baseURL = 'http://172.16.45.121:3005'
 
 function timeout(ms, promise) {
     return new Promise(function (resolve, reject) {
@@ -37,10 +37,10 @@ const request = async (method, endpoint, params, token = null) => {
         let json = await response.json()
         return json
     }).catch(async (error) => {
-        let json = {error:"Request timeout"}
+        let json = { error: "Request timeout" }
         return json
     })
-    
+
     return json
 }
 
@@ -66,12 +66,12 @@ export default {
         let json = await request('post', '/validar', {}, token)
         return json
     },
-    login: async (email, matricula) => {
-        let json = await request('post', '/signin', { email, matricula })
+    login: async (email, password) => {
+        let json = await request('post', '/signin', { email, password })
         return json
     },
-    register: async (email, matricula) => {
-        let json = await request('post', '/signup', { email, matricula })
+    register: async (email, matricula, password) => {
+        let json = await request('post', '/signup', { email, matricula, password })
         return json
     },
     logout: async () => {

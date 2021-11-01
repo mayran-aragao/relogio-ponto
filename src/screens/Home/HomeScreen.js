@@ -265,7 +265,7 @@ const HomeScreen = ({ navigation }) => {
 
     const verifyDevMode = () => {
         JailMonkey.isDevelopmentSettingsMode().then((e) => {
-            setBlock(e)
+            setBlock(false)
         })
     }
 

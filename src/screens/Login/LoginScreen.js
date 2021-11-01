@@ -5,7 +5,6 @@ import { useStateValue } from '../../contexts/StateContext'
 import Alerta from 'react-native-awesome-alerts';
 import { Input, Button, Overlay, Avatar } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Ionicons';
-import LinearGradient from 'react-native-linear-gradient';
 import JailMonkey from 'jail-monkey'
 import PushNotification from 'react-native-push-notification'
 import {
@@ -32,6 +31,8 @@ const LoginScreen = ({ navigation }) => {
 
     const [email, setEmail] = useState('')
     const [matricula, setMatricula] = useState('')
+    const [password, setPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
     const [loading, setLoading] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
     const [activeMenu, setActiveMenu] = useState('signin');
@@ -42,9 +43,9 @@ const LoginScreen = ({ navigation }) => {
 
     useEffect(() => {
         createChannels()
-        JailMonkey.isDevelopmentSettingsMode().then((e) => {
-            setBlock(e)
-        })
+        // JailMonkey.isDevelopmentSettingsMode().then((e) => {
+        //     setBlock(e)
+        // })
     }, [])
 
     const createChannels = () => {
@@ -55,9 +56,9 @@ const LoginScreen = ({ navigation }) => {
     }
 
     const handleSignIn = async () => {
-        if (matricula && email) {
+        if (password && email) {
             setLoading(true)
-            const res = await api.login(email, matricula)
+            const res = await api.login(email, password)
             if (res.error === '') {
                 setLoading(false)
                 dispatch({ type: 'setToken', payload: { token: res.token } })
@@ -78,18 +79,23 @@ const LoginScreen = ({ navigation }) => {
     }
 
     const handleSignUp = async () => {
-        if (email && matricula) {
-            setLoading(true)
-            const res = await api.register(email, matricula)
-            if (res.error === '') {
-                setLoading(false)
-                setShowAlert(true)
-                setError(res.success)
+        if (email && matricula && password && confirmPassword) {
+            if (password == confirmPassword) {
+                setLoading(true)
+                const res = await api.register(email, matricula, password)
+                if (res.error === '') {
+                    setLoading(false)
+                    setShowAlert(true)
+                    setError(res.success)
 
+                } else {
+                    setShowAlert(true)
+                    setError(res.error)
+                    setLoading(false)
+                }
             } else {
                 setShowAlert(true)
-                setError(res.error)
-                setLoading(false)
+                setError('As senhas não combinam!')
             }
         } else {
             setShowAlert(true)
@@ -108,14 +114,32 @@ const LoginScreen = ({ navigation }) => {
                     <Texto style={{ position: 'absolute' }}>Ponto Digital</Texto>
                 </Header>
                 <Menu>
-                    <MenuItem active={activeMenu == 'signin'} underlayColor="transparent" onPress={() => { setActiveMenu('signin'); setEmail(''); setMatricula('') }}>
+                    <MenuItem
+                        active={activeMenu == 'signin'}
+                        underlayColor="transparent"
+                        onPress={() => {
+                            setActiveMenu('signin');
+                            setEmail('');
+                            setMatricula('');
+                            setPassword('');
+                            setConfirmPassword('')
+                        }}>
                         <>
                             <Icon name="log-in" color={activeMenu == 'signin' ? '#5597c8' : 'grey'} />
                             <MenuItemText active={activeMenu == 'signin'}>Login</MenuItemText>
 
                         </>
                     </MenuItem>
-                    <MenuItem active={activeMenu == 'signup'} underlayColor="transparent" onPress={() => { setActiveMenu('signup'); setEmail(''); setMatricula('') }}>
+                    <MenuItem
+                        active={activeMenu == 'signup'}
+                        underlayColor="transparent"
+                        onPress={() => {
+                            setActiveMenu('signup');
+                            setEmail('');
+                            setMatricula('');
+                            setPassword('');
+                            setConfirmPassword('')
+                        }}>
                         <>
                             <Icon name="person-add" color={activeMenu == 'signup' ? '#5597c8' : 'grey'} />
                             <MenuItemText active={activeMenu == 'signup'}>Cadastrar</MenuItemText>
@@ -135,40 +159,57 @@ const LoginScreen = ({ navigation }) => {
                             placeholder="E-mail"
                             leftIcon={<Icon name="mail" color="grey" />}
                         />
+                        {activeMenu == "signup" &&
+                            <Input
+                                editable={!loading}
+                                autoCapitalize="none"
+                                value={matricula}
+                                onChangeText={(m) => setMatricula(m)}
+                                placeholderTextColor="#ccc"
+                                placeholder="Matricula"
+                                keyboardType='numeric'
+                                returnKeyType="go"
+                                leftIcon={<Icon name="keypad-outline" color="grey" />}
+                            />
+                        }
                         <Input
                             editable={!loading}
                             autoCapitalize="none"
                             secureTextEntry={true}
-                            value={matricula}
-                            onChangeText={(m) => setMatricula(m)}
+                            value={password}
+                            onChangeText={(m) => setPassword(m)}
                             placeholderTextColor="#ccc"
-                            placeholder="Matricula"
+                            placeholder="Senha"
                             returnKeyType="go"
                             leftIcon={<Icon name="lock-closed" color="grey" />}
                         />
+
+                        {activeMenu == "signup" &&
+                            <Input
+                                editable={!loading}
+                                autoCapitalize="none"
+                                secureTextEntry={true}
+                                value={confirmPassword}
+                                onChangeText={(m) => setConfirmPassword(m)}
+                                placeholderTextColor="#ccc"
+                                placeholder="Confirmação de senha"
+                                returnKeyType="go"
+                                leftIcon={<Icon name="lock-closed" color="grey" />}
+                            />
+                        }
                         {activeMenu == "signin" &&
                             <Button
-                                // ViewComponent={LinearGradient}
-                                // linearGradientProps={{
-                                //     colors: ["#D67140", '#DE8349', "#CD7820"],
-                                // }}
                                 title="Acessar"
                                 titleStyle={{ color: "#fff" }}
                                 containerStyle={{ width: "100%", padding: 10 }}
-                                // buttonStyle={{ backgroundColor: "#B30506" }}
                                 onPress={() => handleSignIn()}
                             />
                         }
                         {activeMenu == "signup" &&
                             <Button
-                                // ViewComponent={LinearGradient}
-                                // linearGradientProps={{
-                                //     colors: ['rgba(0,0,0,0.2)', "#D67140", '#DE8349', "#CD7820"],
-                                // }}
                                 title="Cadastrar"
                                 titleStyle={{ color: "#fff" }}
                                 containerStyle={{ width: "100%", padding: 10 }}
-                                // buttonStyle={{ backgroundColor: "#B30506" }}
                                 onPress={() => handleSignUp()}
                             />
                         }
