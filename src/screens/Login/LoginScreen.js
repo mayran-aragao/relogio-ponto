@@ -42,14 +42,15 @@ const LoginScreen = ({ navigation }) => {
 
     useEffect(() => {
         createChannels()
-        let verify = JailMonkey.canMockLocation()
-        setBlock(verify)
+        JailMonkey.isDevelopmentSettingsMode().then((e) => {
+            setBlock(e)
+        })
     }, [])
 
     const createChannels = () => {
         PushNotification.createChannel({
-            channelId:"test-channel",
-            channelName:"Test Channel"
+            channelId: "test-channel",
+            channelName: "Test Channel"
         })
     }
 
@@ -187,8 +188,8 @@ const LoginScreen = ({ navigation }) => {
                                 <Icon name="warning" color='#800000' size={25} />
                                 <TextoBlock>ALERTA</TextoBlock>
                             </Div>
-                            <TextoBlock style={{ fontSize: 16 }}>Detectamos aplicativos de falsificar localização.</TextoBlock>
-                            <TextoBlock style={{ fontSize: 16 }}>Reinicie o aplicativo de ponto.</TextoBlock>
+                            <TextoBlock style={{ fontSize: 16 }}>Modo Desenvolvedor Ativo!</TextoBlock>
+                            <TextoBlock style={{ fontSize: 16 }}>Desative e Reinicie o aplicativo.</TextoBlock>
                         </Overlay>
                     </LoadingArea>
                 }

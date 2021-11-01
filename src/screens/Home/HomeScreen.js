@@ -7,7 +7,6 @@ import Geolocation from 'react-native-geolocation-service';
 import moment from 'moment-with-locales-es6'
 import Alerta from 'react-native-awesome-alerts';
 import JailMonkey from 'jail-monkey';
-import { check, PERMISSIONS, RESULTS, request } from 'react-native-permissions'
 
 import {
     Container,
@@ -45,17 +44,15 @@ const HomeScreen = ({ navigation }) => {
     const [location, setLocation] = useState(null);
     const [register, setRegister] = useState([]);
     const [schedule, setSchedule] = useState(context.user.notifications ? JSON.parse(context.user.notifications) : [])
-    const [isDevelopmentSettingsMode, setIsDevelopmentSettingsMode] = useState();
     const [block, setBlock] = useState(false)
 
 
 
 
     useEffect(() => {
-        let verify = JailMonkey.canMockLocation()
+        verifyDevMode()
         getMyLocation()
         chargeRegister()
-        setBlock(verify)
 
         let data = new Date()
         let day = data.getDate()
@@ -108,6 +105,7 @@ const HomeScreen = ({ navigation }) => {
     useEffect(() => {
 
         const timerFunction = () => {
+            verifyDevMode()
             let now = new Date();
             setHours(now.getHours())
             setMinute(now.getMinutes())
@@ -210,8 +208,8 @@ const HomeScreen = ({ navigation }) => {
     }
 
     const sendRegister = async () => {
+        await verifyDevMode()
         if (location) {
-            // if (location.latitude <= -5.123 && location.latitude >= -5.127 && location.longitude <= -42.803 && location.longitude >= -42.807 && location.mock == false)
             if (location.mock == false) {
                 setShow(false)
                 setLoading(true)
@@ -263,6 +261,12 @@ const HomeScreen = ({ navigation }) => {
             setLoading(false)
         }
 
+    }
+
+    const verifyDevMode = () => {
+        JailMonkey.isDevelopmentSettingsMode().then((e) => {
+            setBlock(e)
+        })
     }
 
 
