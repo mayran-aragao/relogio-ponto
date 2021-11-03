@@ -94,7 +94,7 @@ const LoginScreen = ({ navigation }) => {
         if (email && matricula && password && confirmPassword) {
             if (password == confirmPassword) {
                 setLoading(true)
-                const res = await api.register(email, matricula, password)
+                const res = await api.register(email.trim(), matricula.trim(), password.trim())
                 if (res.error === '') {
                     setLoading(false)
                     setShowAlert(true)

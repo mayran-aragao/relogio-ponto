@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// const baseURL = 'https://pontomobile.armazemparaiba.com.br/'
-const baseURL = 'http://172.16.45.121:3003'
+const baseURL = 'https://pontomobile.armazemparaiba.com.br/'
+// const baseURL = 'http://172.16.45.121:3003'
 
 function timeout(ms, promise) {
     return new Promise(function (resolve, reject) {
