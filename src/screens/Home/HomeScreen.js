@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef, useReducer } from 'react';
-import { StatusBar, Platform, ActivityIndicator, PermissionsAndroid } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { StatusBar, Platform, ActivityIndicator, PermissionsAndroid, View } from 'react-native';
 import { Divider, Button, ListItem, Overlay } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useStateValue } from '../../contexts/StateContext'
@@ -7,7 +7,7 @@ import Geolocation from 'react-native-geolocation-service';
 import moment from 'moment-with-locales-es6'
 import Alerta from 'react-native-awesome-alerts';
 import JailMonkey from 'jail-monkey';
-
+import * as Animatable from 'react-native-animatable';
 import {
     Container,
     ClockView,
@@ -15,10 +15,7 @@ import {
     Div,
     Texto,
     TextoHora,
-    PontoView,
     Ponto,
-    ListView,
-    Header,
     Aviso,
     LoadingArea,
     RegisterList,
@@ -46,10 +43,36 @@ const HomeScreen = ({ navigation }) => {
     const [schedule, setSchedule] = useState(context.user.notifications ? JSON.parse(context.user.notifications) : [])
     const [block, setBlock] = useState(false)
 
+    const ButtonElement = useRef()
+    const SecondsElement = useRef()
+    const MinutesElement = useRef()
+    const HoursElement = useRef()
+    const TextElement = useRef()
+    const IconElement = useRef()
+    const ListElement = useRef()
 
-
+    const FirstPoint = useRef()
+    const SecondPoint = useRef()
 
     useEffect(() => {
+        if (register != "") {
+            ListElement.current.animate('bounceInLeft', 1900)
+        }else {
+            IconElement.current.animate('bounceInLeft', 1900)
+        }
+    }, [register])
+
+    useEffect(() => {
+        SecondsElement.current.animate('bounceInLeft', 1500)
+        MinutesElement.current.animate('bounceInLeft', 1700)
+        HoursElement.current.animate('bounceInLeft', 1900)
+        TextElement.current.animate('bounceInLeft', 1900)
+        ButtonElement.current.animate('bounceInLeft', 1900)
+        
+
+        FirstPoint.current.animate('bounceInLeft', 1800)
+        SecondPoint.current.animate('bounceInLeft', 1600)
+
         verifyDevMode()
         getMyLocation()
         chargeRegister()
@@ -103,7 +126,6 @@ const HomeScreen = ({ navigation }) => {
     }, [])
 
     useEffect(() => {
-
         const timerFunction = () => {
             verifyDevMode()
             let now = new Date();
@@ -119,6 +141,7 @@ const HomeScreen = ({ navigation }) => {
     }, [])
 
     useEffect(() => {
+
         if (hours <= 11)
             return setMenssage("Bom dia, ")
         if (hours >= 12 && hours <= 17)
@@ -126,9 +149,6 @@ const HomeScreen = ({ navigation }) => {
         if (hours >= 18)
             return setMenssage("Boa noite, ")
     }, [hours])
-
- 
-
 
     const chargeRegister = async () => {
         let data = moment(new Date()).format('YYYY-MM-DD')
@@ -273,39 +293,70 @@ const HomeScreen = ({ navigation }) => {
     return (
         <Container >
             <StatusBar barStyle={Platform.OS == 'ios' ? 'dark-content' : 'light-content'} animated={true} backgroundColor="#5597c8" />
-            <Header>
-                <Texto >{menssage}{(user.nome.split(" ")[0])[0] + (user.nome.split(" ")[0]).substr(1).toLowerCase()}</Texto>
-                <Texto >{day}, {month}, {year}</Texto>
-            </Header>
+            <Animatable.View
+                ref={TextElement}
+                useNativeDriver
+                style={{ backgroundColor: "#fffdfd", padding: 10, flexDirection: 'row', justifyContent: 'space-between' }}
+            >
+                <Texto>
+                    {menssage}{(user.nome.split(" ")[0])[0] + (user.nome.split(" ")[0]).substr(1).toLowerCase()}
+                </Texto>
+                <Texto>
+                    {day}, {month}, {year}
+                </Texto>
+            </Animatable.View>
             <ClockView>
-
                 <Div>
-                    <Div>
+                    <Animatable.View
+                        ref={HoursElement}
+                        useNativeDriver
+                        style={{ padding: 10 }}
+                    >
                         <TimeView>
                             <TextoHora >{hours < 10 ? "0" + hours : hours}</TextoHora>
                         </TimeView>
-                    </Div>
-                    <PontoView>
+                    </Animatable.View>
+                    <Animatable.View
+                        ref={FirstPoint}
+                        useNativeDriver
+                        style={{ justifyContent: 'center', alignItems: 'center' }}
+                    >
                         <Ponto >:</Ponto>
-                    </PontoView>
-                    <Div>
+                    </Animatable.View>
+                    <Animatable.View
+                        ref={MinutesElement}
+                        useNativeDriver
+                        style={{ padding: 10 }}
+                    >
                         <TimeView>
                             <TextoHora >{minute < 10 ? "0" + minute : minute}</TextoHora>
                         </TimeView>
-                    </Div>
-                    <PontoView>
+                    </Animatable.View>
+                    <Animatable.View
+                        ref={SecondPoint}
+                        useNativeDriver
+                        style={{ justifyContent: 'center', alignItems: 'center' }}
+                    >
                         <Ponto >:</Ponto>
-                    </PontoView>
-                    <Div>
+                    </Animatable.View>
+                    <Animatable.View
+                        ref={SecondsElement}
+                        useNativeDriver
+                        style={{ padding: 10 }}
+                    >
                         <TimeView>
                             <TextoHora >{seconds < 10 ? "0" + seconds : seconds}</TextoHora>
                         </TimeView>
-                    </Div>
+                    </Animatable.View>
                 </Div>
 
             </ClockView>
 
-            <Div>
+            <Animatable.View
+                ref={ButtonElement}
+                useNativeDriver
+                style={{ padding: 10 }}
+            >
                 <Button
                     type="outline"
                     title="Registrar ponto"
@@ -315,29 +366,38 @@ const HomeScreen = ({ navigation }) => {
                     // onPress={() => { getMyLocation(), setShow(true) }}
                     onPress={() => { setShow(true) }}
                 />
-            </Div>
+            </Animatable.View>
 
             <Divider orientation="horizontal" />
             {register == "" &&
-                <ListView>
+                <Animatable.View
+                    ref={IconElement}
+                    useNativeDriver
+                    style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 10 }}
+                >
                     <Icon name="finger-print-outline" size={70} color="grey" />
                     <Aviso >Nenhum registro hoje</Aviso>
-                </ListView>
+                </Animatable.View>
             }
             {register != "" &&
-                <RegisterList>
-                    {register.map((item, index) => (
-
-                        <ListItem key={index} bottomDivider>
-                            <ListItem.Content style={{ alignItems: 'flex-start' }}>
-                                <ListItem.Title>{moment(item.dt_ponto, "YYYY-MM-DD").format('dddd,DD,MMM')}</ListItem.Title>
-                                <ListItem.Subtitle style={{ fontWeight: 'bold' }}>{(item.hr_ponto).replace(".", ":") + " Hrs"}</ListItem.Subtitle>
-                            </ListItem.Content>
-                            <Icon name="md-checkmark-circle" size={40} color="#5597c8" />
-                        </ListItem>
-                    ))
-                    }
-                </RegisterList>
+                <Animatable.View
+                    ref={ListElement}
+                    useNativeDriver
+                    style={{ flex: 1 }}
+                >
+                    <RegisterList>
+                        {register.map((item, index) => (
+                            <ListItem key={index} bottomDivider>
+                                <ListItem.Content style={{ alignItems: 'flex-start' }}>
+                                    <ListItem.Title>{moment(item.dt_ponto, "YYYY-MM-DD").format('dddd,DD,MMM')}</ListItem.Title>
+                                    <ListItem.Subtitle style={{ fontWeight: 'bold' }}>{(item.hr_ponto).replace(".", ":") + " Hrs"}</ListItem.Subtitle>
+                                </ListItem.Content>
+                                <Icon name="md-checkmark-circle" size={40} color="#5597c8" />
+                            </ListItem>
+                        ))
+                        }
+                    </RegisterList>
+                </Animatable.View>
             }
             {loading &&
                 <LoadingArea>
@@ -384,6 +444,7 @@ const HomeScreen = ({ navigation }) => {
                     confirmButtonColor="#5597c8"
                     onCancelPressed={() => setShowAlert(false)}
                     onConfirmPressed={() => setShowAlert(false)}
+                    onDismiss={()=> setShowAlert(false)}
                     contentContainerStyle={{ width: "100%" }}
                     actionContainerStyle={{ justifyContent: "space-around" }}
                     cancelButtonStyle={{ height: 35, width: "100%", justifyContent: 'center', alignItems: "center" }}
@@ -404,6 +465,7 @@ const HomeScreen = ({ navigation }) => {
                     confirmButtonColor="#5597c8"
                     onCancelPressed={() => setShow(false)}
                     onConfirmPressed={() => { sendRegister() }}
+                    onDismiss={()=> setShow(false)}
                     contentContainerStyle={{ width: "100%" }}
                     actionContainerStyle={{ justifyContent: "space-around" }}
                     cancelButtonStyle={{ height: 35, width: "100%", justifyContent: 'center', alignItems: "center" }}

@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const baseURL = 'https://pontomobile.armazemparaiba.com.br/'
-// const baseURL = 'http://172.16.45.121:3005'
+// const baseURL = 'https://pontomobile.armazemparaiba.com.br/'
+const baseURL = 'http://172.16.45.121:3003'
 
 function timeout(ms, promise) {
     return new Promise(function (resolve, reject) {
@@ -102,6 +102,11 @@ export default {
     take_photo: async (matricula) => {
         let token = await AsyncStorage.getItem('token')
         let json = await request('post', '/take_photo', { matricula }, token)
+        return json
+    },
+    change_password: async (currentPassword, newPassword, matricula) => {
+        let token = await AsyncStorage.getItem('token')
+        let json = await request('post', '/change_password', { currentPassword, newPassword, matricula }, token)
         return json
     }
 }

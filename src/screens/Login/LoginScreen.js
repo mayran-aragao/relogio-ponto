@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, StatusBar, Platform, Keyboard, TouchableWithoutFeedback, Pressable, ScrollView } from 'react-native'
+import React, { useEffect, useState, useRef } from 'react';
+import { ActivityIndicator, StatusBar, Platform, ScrollView, View } from 'react-native'
 import api from '../../api'
 import { useStateValue } from '../../contexts/StateContext'
 import Alerta from 'react-native-awesome-alerts';
@@ -7,6 +7,7 @@ import { Input, Button, Overlay, Avatar } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Ionicons';
 import JailMonkey from 'jail-monkey'
 import PushNotification from 'react-native-push-notification'
+import * as Animatable from 'react-native-animatable';
 import {
     Container,
     Header,
@@ -22,8 +23,6 @@ import {
     TextoBlock,
     Div,
     DivImage,
-    ScrollKeyboardDismiss
-
 } from './Style'
 
 
@@ -41,7 +40,16 @@ const LoginScreen = ({ navigation }) => {
 
     const [context, dispatch] = useStateValue()
 
+    const LoginElement = useRef()
+    const ButtonElement = useRef()
+    const LogoElement = useRef()
+    const FooterElement = useRef()
+
     useEffect(() => {
+        LoginElement.current.animate('flipInY', 1500)
+        ButtonElement.current.animate('flipInY', 1300)
+        LogoElement.current.animate('flipInY', 1100)
+        FooterElement.current.animate('flipInY', 1500)
         createChannels()
         // JailMonkey.isDevelopmentSettingsMode().then((e) => {
         //     setBlock(e)
@@ -58,11 +66,15 @@ const LoginScreen = ({ navigation }) => {
     const handleSignIn = async () => {
         if (password && email) {
             setLoading(true)
-            const res = await api.login(email, password)
+            const res = await api.login(email.trim(), password.trim())
             if (res.error === '') {
                 setLoading(false)
                 dispatch({ type: 'setToken', payload: { token: res.token } })
                 dispatch({ type: 'setUser', payload: { user: JSON.stringify(res.user) } })
+                LogoElement.current.animate('flipOutY', 1300)
+                LoginElement.current.animate('flipOutY', 1300)
+                ButtonElement.current.animate('flipOutY', 1300)
+                await FooterElement.current.animate('flipOutY', 1300)
                 navigation.reset({
                     index: 1,
                     routes: [{ name: 'Tab' }]
@@ -107,13 +119,21 @@ const LoginScreen = ({ navigation }) => {
         <ScrollView contentContainerStyle={{ flex: 1 }} scrollEnabled={false} keyboardDismissMode='on-drag' keyboardShouldPersistTaps='handled'>
             <Container >
                 <StatusBar barStyle={Platform.OS == 'ios' ? 'dark-content' : 'dark-content'} animated={true} backgroundColor="#F5F5F5" />
-                <Header>
+                <Animatable.View
+                    ref={LogoElement}
+                    useNativeDriver
+                    style={{ width: '100%', justifyContent: 'center', alignItems: 'center', bottom: 50 }}>
                     <DivImage >
                         <Image resizeMode="contain" source={require('../../essets/ti_logo.png')} />
                     </DivImage>
                     <Texto style={{ position: 'absolute' }}>Ponto Digital</Texto>
-                </Header>
-                <Menu>
+                </Animatable.View>
+                <Animatable.View
+                    ref={ButtonElement}
+                    useNativeDriver
+                    style={{ width: '90%', flexDirection: 'row', paddingLeft: 20, marginBottom: 10, justifyContent: 'space-around' }}
+                >
+                    {/* <Menu> */}
                     <MenuItem
                         active={activeMenu == 'signin'}
                         underlayColor="transparent"
@@ -145,8 +165,14 @@ const LoginScreen = ({ navigation }) => {
                             <MenuItemText active={activeMenu == 'signup'}>Cadastrar</MenuItemText>
                         </>
                     </MenuItem>
-                </Menu>
-                <DivLogin>
+                    {/* </Menu> */}
+                </Animatable.View>
+                {/* <DivLogin> */}
+                <Animatable.View
+                    ref={LoginElement}
+                    useNativeDriver
+                    style={{ width: "90%", backgroundColor: "#fff", borderRadius: 5, padding: 20 }}
+                >
                     <ScrollView keyboardDismissMode='on-drag' keyboardShouldPersistTaps='handled' scrollEnabled={false}>
                         <Input
                             editable={!loading}
@@ -214,7 +240,8 @@ const LoginScreen = ({ navigation }) => {
                             />
                         }
                     </ScrollView>
-                </DivLogin>
+                </Animatable.View>
+                {/* </DivLogin> */}
                 {
                     loading &&
                     <LoadingArea>
@@ -256,10 +283,13 @@ const LoginScreen = ({ navigation }) => {
                         confirmButtonStyle={{ height: 35, width: "100%", justifyContent: 'center', alignItems: "center" }}
                     />
                 }
-                <Footer>
-                    {/* <FooterImage resizeMode="center" source={require('../../essets/ti_logo.png')} /> */}
+                <Animatable.View
+                    ref={FooterElement}
+                    useNativeDriver
+                    style={{ position: 'absolute', bottom: 10 }}
+                >
                     <FooterText>Versão 1.0.0</FooterText>
-                </Footer>
+                </Animatable.View>
 
             </Container >
         </ScrollView>

@@ -44,6 +44,7 @@ export const Menu = styled.View`
     padding-left: 20px;
     margin-bottom: 10px;
     justify-content: space-around;
+    background-color: #ccc;
 `;
 
 export const MenuItem = styled.TouchableHighlight`

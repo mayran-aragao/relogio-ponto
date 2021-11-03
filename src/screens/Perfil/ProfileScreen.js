@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { TouchableHighlight, Platform, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState, useRef, memo } from 'react';
+import { TouchableHighlight, ActivityIndicator, View } from 'react-native';
 import { Button, Avatar, Tooltip, Text, Input, Overlay, ListItem, Card } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'react-native-image-picker';
 import { useStateValue } from '../../contexts/StateContext'
 import Alerta from 'react-native-awesome-alerts';
-import moment from 'moment';
+import moment, { duration } from 'moment';
 import { check, PERMISSIONS, RESULTS, request, requestMultiple } from 'react-native-permissions'
 import PushNotification from "react-native-push-notification";
+import * as Animatable from 'react-native-animatable';
 import {
     Container,
-    ListView,
-    Div,
     Texto,
     LoadingArea,
     TimeView,
@@ -19,9 +18,6 @@ import {
     TextoCard
 } from './Style'
 import api from '../../api';
-
-
-
 
 const ProfileScreen = ({ navigation }, props) => {
 
@@ -34,6 +30,10 @@ const ProfileScreen = ({ navigation }, props) => {
     const [image, setImage] = useState();
     const [expanded, setExpanded] = useState(false)
     const [visible, setVisible] = useState(false)
+    const [passwordModal, setPasswordModal] = useState(false)
+    const [currentPassword, setCurrentPassword] = useState('')
+    const [newPassword, setNewPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
 
     const [schedule, setSchedule] = useState(context.user.notifications ? JSON.parse(context.user.notifications) : [])
     const [sched, setSched] = useState('')
@@ -41,12 +41,26 @@ const ProfileScreen = ({ navigation }, props) => {
     const [sched3, setSched3] = useState('')
     const [sched4, setSched4] = useState('')
 
+    const AvatarElement = useRef()
+    const NameElement = useRef()
+    const ButtonElement = useRef()
+    const ItemElement = useRef()
+    const DefineElement = useRef()
+    const ChangeElement = useRef()
+
+    useEffect(() => {
+        AvatarElement.current.animate('fadeInLeft', 1500)
+        NameElement.current.animate('fadeInLeft', 1300)
+        ButtonElement.current.animate('fadeInLeft', 1100)
+        ItemElement.current.animate('fadeInLeft', 1500)
+        DefineElement.current.animate('fadeInLeft', 1600)
+        ChangeElement.current.animate('fadeInLeft', 1700)
+    }, [])
 
     useEffect(() => {
         take_photo()
         notificacao()
     }, [schedule]);
-
 
     const notificacao = () => {
         PushNotification.cancelAllLocalNotifications()
@@ -55,7 +69,6 @@ const ProfileScreen = ({ navigation }, props) => {
         let day = new Date().getDate()
         let hours = new Date().getHours()
         let minutes = new Date().getMinutes()
-
 
         schedule.map(a => {
             let now = moment(`${hours}:${minutes}`, "HH:mm").format("HH:mm")
@@ -102,7 +115,7 @@ const ProfileScreen = ({ navigation }, props) => {
             if (res.assets) {
                 setImage(res.assets[0].base64)
                 let save = await api.save_photo(res.assets[0], user.matricula)
-                let obj = { matricula: user.matricula, base64:res.assets[0].base64 }
+                let obj = { matricula: user.matricula, base64: res.assets[0].base64 }
 
                 if (save.error === '') {
                     dispatch({ type: 'setPhoto', payload: { photo: JSON.stringify(obj) } })
@@ -123,7 +136,7 @@ const ProfileScreen = ({ navigation }, props) => {
 
             let res = await api.take_photo(user.matricula)
 
-            let obj = { matricula: user.matricula, base64:res.base64 }
+            let obj = { matricula: user.matricula, base64: res.base64 }
 
             dispatch({ type: 'setPhoto', payload: { photo: JSON.stringify(obj) } })
 
@@ -134,6 +147,12 @@ const ProfileScreen = ({ navigation }, props) => {
 
     const logout = async (e) => {
         setShowAlert(false)
+        AvatarElement.current.animate('fadeOutLeft', 1000)
+        NameElement.current.animate('fadeOutLeft', 1000)
+        ButtonElement.current.animate('fadeOutLeft', 1000)
+        ItemElement.current.animate('fadeOutLeft', 1000)
+        DefineElement.current.animate('fadeOutLeft', 1000)
+        await ChangeElement.current.animate('fadeOutLeft', 1000)
         await api.logout();
         navigation.reset({
             index: 1,
@@ -153,28 +172,73 @@ const ProfileScreen = ({ navigation }, props) => {
         setVisible(!visible)
     }
 
-
+    const save_password = async () => {
+        if (newPassword && confirmPassword && currentPassword) {
+            if (newPassword == confirmPassword) {
+                setLoading(true)
+                let result = await api.change_password(currentPassword, newPassword, user.matricula)
+                if (result.error === '') {
+                    setLoading(false)
+                    setShow(true)
+                    setError(result.success)
+                    setConfirmPassword('')
+                    setCurrentPassword('')
+                    setNewPassword('')
+                    setPasswordModal(!passwordModal)
+                } else {
+                    setShow(true)
+                    setError(result.error)
+                    setLoading(false)
+                }
+            } else {
+                setShow(!show)
+                setError('A confirmação de senha não combina!')
+            }
+        } else {
+            setShow(true)
+            setError('Campos não preenchidos!')
+        }
+    }
 
     return (
         <Container >
             <Card containerStyle={{ backgroundColor: "#FFFdFd", margin: 0, width: "100%", borderWidth: 0 }} wrapperStyle={{ flexDirection: 'row', justifyContent: 'space-around' }}  >
-                <Avatar
-                    rounded
-                    title={(user.nome).substring(0, 2)}
-                    onPress={pickImage}
-                    size={80}
-                    source={{ uri: 'data:image/jpeg;base64,' + image }}
-                    // source={{ uri: image }}
-                    activeOpacity={0.7}
-                    containerStyle={{ backgroundColor: "grey" }}
-                />
-                <Div>
-                    <TextoCard txcolor="#666" >Nome:</TextoCard>
-                    <TextoCard txcolor="#000" >{user.nome.trim().split(" ").length >= 3 ? user.nome.trim().split(" ").filter((e, i) => (i == 0 || i == 2)).join(' ') : user.nome.trim()}</TextoCard>
-                    <TextoCard txcolor="#666">Função:</TextoCard>
-                    <TextoCard txcolor="#000">{user.no_funcao.trim().length > 22 ? `${user.no_funcao.trim().substring(0, 3)} ${user.no_funcao.trim().split(' ').slice(1, 5).join(' ')}` : user.no_funcao.trim()}</TextoCard>
-                </Div>
-                <ListView>
+                <Animatable.View
+                    ref={AvatarElement}
+                    useNativeDriver
+                >
+                    <Avatar
+                        rounded
+                        title={(user.nome).substring(0, 2)}
+                        onPress={pickImage}
+                        size={80}
+                        source={{ uri: 'data:image/jpeg;base64,' + image }}
+                        activeOpacity={0.7}
+                        containerStyle={{ backgroundColor: "#5597c8" }}
+                    />
+                </Animatable.View>
+                <Animatable.View
+                    ref={NameElement}
+                    useNativeDriver
+                >
+                    <TextoCard txcolor="#666">
+                        Nome:
+                    </TextoCard>
+                    <TextoCard txcolor="#000">
+                        {user.nome.trim().split(" ").length >= 3 ? user.nome.trim().split(" ").filter((e, i) => (i == 0 || i == 2)).join(' ') : user.nome.trim()}
+                    </TextoCard>
+                    <TextoCard txcolor="#666">
+                        Função:
+                    </TextoCard>
+                    <TextoCard txcolor="#000">
+                        {user.no_funcao.trim().length > 22 ? `${user.no_funcao.trim().substring(0, 3)} ${user.no_funcao.trim().split(' ').slice(1, 5).join(' ')}` : user.no_funcao.trim()}
+                    </TextoCard>
+                </Animatable.View>
+                <Animatable.View
+                    ref={ButtonElement}
+                    useNativeDriver
+                    style={{ alignItems: 'center', justifyContent: 'center' }}
+                >
                     <Button
                         title="Logout"
                         type="clear"
@@ -185,13 +249,12 @@ const ProfileScreen = ({ navigation }, props) => {
                         buttonStyle={{ borderColor: 'red', }}
                         onPress={() => setShowAlert(true)}
                     />
-                </ListView>
-
+                </Animatable.View>
             </Card>
-
-
-
-            <>
+            <Animatable.View
+                ref={ItemElement}
+                useNativeDriver
+            >
                 <ListItem.Accordion
                     bottomDivider
                     content={
@@ -233,38 +296,119 @@ const ProfileScreen = ({ navigation }, props) => {
                                 color="#000"
                             />
                             <ListItem.Content style={{ flexDirection: 'row', justifyContent: 'space-around' }} >
-                                {/* <ListItem.Title style={{paddingRight:10}}> */}
                                 {schedule.map((item, i) => (
                                     <Text key={i} >{item}</Text>
                                 ))
                                 }
-                                {/* </ListItem.Title> */}
                             </ListItem.Content>
                         </ListItem>
                     }
-
                 </ListItem.Accordion>
-            </>
-
-            <ListItem
-                bottomDivider
-                Component={TouchableHighlight}
-                containerStyle={{}}
-                disabledStyle={{ opacity: 0.5 }}
-                onPress={() => setVisible(!visible)}
-                pad={20}
+            </Animatable.View>
+            <Animatable.View
+                ref={DefineElement}
+                useNativeDriver
             >
-                <Icon
-                    name="settings-outline"
-                    size={15}
-                    color="#2689C3"
+                <ListItem
+                    bottomDivider
+                    Component={TouchableHighlight}
+                    containerStyle={{}}
+                    disabledStyle={{ opacity: 0.5 }}
+                    onPress={() => setVisible(!visible)}
+                    pad={20}
+                >
+                    <Icon
+                        name="settings-outline"
+                        size={15}
+                        color="#2689C3"
+                    />
+                    <ListItem.Content>
+                        <ListItem.Title>
+                            <Text>Definir notificações</Text>
+                        </ListItem.Title>
+                    </ListItem.Content>
+                </ListItem>
+            </Animatable.View>
+            <Animatable.View
+                ref={ChangeElement}
+                useNativeDriver
+            >
+                <ListItem
+                    bottomDivider
+                    Component={TouchableHighlight}
+                    containerStyle={{}}
+                    disabledStyle={{ opacity: 0.5 }}
+                    onPress={() => { setPasswordModal(!passwordModal), setNewPassword(''), setCurrentPassword(''), setConfirmPassword('') }}
+                    pad={20}
+                >
+                    <Icon
+                        name="lock-closed-outline"
+                        size={15}
+                        color="#2689C3"
+                    />
+                    <ListItem.Content>
+                        <ListItem.Title>
+                            <Text>Redefinir senha</Text>
+                        </ListItem.Title>
+                    </ListItem.Content>
+                </ListItem>
+            </Animatable.View>
+            <Overlay
+                isVisible={passwordModal}
+                onBackdropPress={() => setPasswordModal(!passwordModal)}
+                overlayStyle={{ width: '85%' }}
+            >
+                <Input
+                    editable={!loading}
+                    autoCapitalize="none"
+                    secureTextEntry={true}
+                    value={currentPassword}
+                    onChangeText={(m) => setCurrentPassword(m)}
+                    placeholderTextColor="#ccc"
+                    placeholder="Senha Atual"
+                    returnKeyType="go"
+                    leftIcon={<Icon name="lock-closed" color="grey" />}
+                    containerStyle={{ width: "100%" }}
                 />
-                <ListItem.Content>
-                    <ListItem.Title>
-                        <Text>Definir notificações</Text>
-                    </ListItem.Title>
-                </ListItem.Content>
-            </ListItem>
+                <Input
+                    editable={!loading}
+                    autoCapitalize="none"
+                    secureTextEntry={true}
+                    value={newPassword}
+                    onChangeText={(m) => setNewPassword(m)}
+                    placeholderTextColor="#ccc"
+                    placeholder="Nova Senha"
+                    returnKeyType="go"
+                    leftIcon={<Icon name="lock-closed" color="grey" />}
+                    containerStyle={{ width: "100%" }}
+                />
+                <Input
+                    editable={!loading}
+                    autoCapitalize="none"
+                    secureTextEntry={true}
+                    value={confirmPassword}
+                    onChangeText={(m) => setConfirmPassword(m)}
+                    placeholderTextColor="#ccc"
+                    placeholder="Confirmação de senha"
+                    returnKeyType="go"
+                    leftIcon={<Icon name="lock-closed" color="grey" />}
+                    containerStyle={{ width: "100%" }}
+                />
+                <Button
+                    icon={
+                        <Icon
+                            name="save-outline"
+                            size={15}
+                            color="#5597c8"
+                        />
+                    }
+                    containerStyle={{ marginTop: 10 }}
+                    titleStyle={{ marginHorizontal: 5 }}
+                    title="Salvar"
+                    type="outline"
+                    onPress={save_password}
+                />
+            </Overlay>
             <Overlay
                 isVisible={visible}
                 onBackdropPress={() => setVisible(!visible)}
@@ -317,7 +461,7 @@ const ProfileScreen = ({ navigation }, props) => {
                             <Icon
                                 name="save-outline"
                                 size={15}
-                                color="#2689C3"
+                                color="#5597c8"
                             />
                         }
                         titleStyle={{ marginHorizontal: 5 }}
@@ -327,19 +471,6 @@ const ProfileScreen = ({ navigation }, props) => {
                     />
                 </DivHorario>
             </Overlay>
-
-
-            {/* 
-            <ListView>
-                <Button
-                    title="Logout"
-                    type="outline"
-                    titleStyle={{ color: 'red' }}
-                    containerStyle={{ width: "100%" }}
-                    buttonStyle={{ borderColor: 'red', }}
-                    onPress={() => setShowAlert(true)}
-                />
-            </ListView> */}
 
             {loading &&
                 <LoadingArea>
@@ -379,7 +510,7 @@ const ProfileScreen = ({ navigation }, props) => {
                     showCancelButton={false}
                     showConfirmButton={true}
                     confirmText="Entendido"
-                    confirmButtonColor="#B30506"
+                    confirmButtonColor="#5597c8"
                     onConfirmPressed={() => setShow(false)}
                     contentContainerStyle={{ width: "100%" }}
                     actionContainerStyle={{ justifyContent: "space-around" }}
@@ -393,4 +524,4 @@ const ProfileScreen = ({ navigation }, props) => {
 }
 
 
-export default ProfileScreen;
+export default memo(ProfileScreen);

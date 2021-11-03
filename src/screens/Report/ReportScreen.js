@@ -1,11 +1,12 @@
-import React, { useRef, useState } from 'react';
-import { StatusBar, FlatList, Image, Animated, Text, View, Dimensions, StyleSheet, TouchableOpacity, Easing, SafeAreaViewBase, SafeAreaView } from 'react-native';
+import React, { useRef, useState, useEffect } from 'react';
+import { StatusBar, Animated, Dimensions, } from 'react-native';
 import { Divider, Button, Overlay } from 'react-native-elements';
 import { ActivityIndicator } from 'react-native'
 import moment from 'moment'
 import Alerta from 'react-native-awesome-alerts';
 import api from '../../api'
 import Lista from '../../components/Lista'
+import * as Animatable from 'react-native-animatable';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {
     Container,
@@ -36,6 +37,15 @@ const Calendar = () => {
     const [modalVisible, setModalVisible] = useState(false)
     const [horarios, setHorarios] = useState(null)
     const [daySelected, setDaySelected] = useState(null)
+
+    const CalendarElement = useRef()
+    const ButtonElement = useRef()
+
+
+    useEffect(() => {
+        CalendarElement.current.animate('fadeInLeftBig', 1500)
+        ButtonElement.current.animate('fadeInLeftBig', 1500)
+    }, [])
 
 
     const onDateChange = (date, type) => {
@@ -74,6 +84,12 @@ const Calendar = () => {
             setShowAlert(true)
             setLoading(false)
         }
+    }
+
+    const clearSearch = () => {
+        setRegistros(null)
+        setSelectedStartDate(null)
+        setSelectedEndDate(null) 
     }
     const viewReport = (item) => {
         // let dias =[...new Set(b.map(a=>a.dt_ponto))]     exemplo
@@ -118,7 +134,11 @@ const Calendar = () => {
                 </Overlay>
             }
             {!registros &&
-                <Div>
+                <Animatable.View
+                    ref={CalendarElement}
+                    useNativeDriver
+                    style={{ paddingTop: 20 }}
+                >
                     <CalendarPicker
                         startFromMonday={true}
                         allowRangeSelection={true}
@@ -134,7 +154,7 @@ const Calendar = () => {
                         selectedDayTextColor="#FFFFFF"
                         onDateChange={(data, type) => onDateChange(data, type)}
                     />
-                </Div>
+                </Animatable.View>
             }
             {registros &&
                 <>
@@ -160,9 +180,9 @@ const Calendar = () => {
                                 inputRange,
                                 outputRange: [1, 1, 1, 0]
                             })
-                            return <Animated.View style={{transform:[{scale}],marginBottom:20,borderRadius:12}}>
+                            return <Animated.View style={{ transform: [{ scale }], marginBottom: 20, borderRadius: 12 }}>
                                 <Button
-                                    onPress={()=> viewReport(item)}
+                                    onPress={() => viewReport(item)}
                                     type="clear"
                                     title={
                                         <Div2>
@@ -195,7 +215,11 @@ const Calendar = () => {
                 </>
             }
             {!registros &&
-                <Div style={{ flex: 1, justifyContent: 'flex-end' }}>
+                <Animatable.View
+                    ref={ButtonElement}
+                    useNativeDriver
+                    style={{ flex: 1, justifyContent: 'flex-end' }}
+                >
                     <Divider orientation="horizontal" />
                     <Button
                         type="outline"
@@ -205,7 +229,7 @@ const Calendar = () => {
                         buttonStyle={{ borderColor: "#5597c8" }}
                         onPress={() => search(startDate, endDate)}
                     />
-                </Div>
+                </Animatable.View>
             }
 
             {registros &&
@@ -217,7 +241,7 @@ const Calendar = () => {
                         titleStyle={{ color: '#5597c8' }}
                         containerStyle={{ width: "100%", padding: 10 }}
                         buttonStyle={{ borderColor: '#5597c8' }}
-                        onPress={() => { setRegistros(null), setSelectedStartDate(null), setSelectedEndDate(null) }}
+                        onPress={() => { clearSearch()}}
                     />
                 </Div>
             }
