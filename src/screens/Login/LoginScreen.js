@@ -10,14 +10,10 @@ import PushNotification from 'react-native-push-notification'
 import * as Animatable from 'react-native-animatable';
 import {
     Container,
-    Header,
-    DivLogin,
     Texto,
-    Menu,
     MenuItem,
     MenuItemText,
     LoadingArea,
-    Footer,
     FooterText,
     Image,
     TextoBlock,
@@ -51,9 +47,9 @@ const LoginScreen = ({ navigation }) => {
         LogoElement.current.animate('flipInY', 1100)
         FooterElement.current.animate('flipInY', 1500)
         createChannels()
-        // JailMonkey.isDevelopmentSettingsMode().then((e) => {
-        //     setBlock(e)
-        // })
+        JailMonkey.isDevelopmentSettingsMode().then((e) => {
+            setBlock(false)
+        })
     }, [])
 
     const createChannels = () => {
@@ -288,7 +284,7 @@ const LoginScreen = ({ navigation }) => {
                     useNativeDriver
                     style={{ position: 'absolute', bottom: 10 }}
                 >
-                    <FooterText>Versão 1.0.0</FooterText>
+                    <FooterText>Versão 1.0.1</FooterText>
                 </Animatable.View>
 
             </Container >

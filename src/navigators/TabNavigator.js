@@ -4,7 +4,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import HomeScreen from '../screens/Home/HomeScreen';
 import ReportScreen from '../screens/Report/ReportScreen';
 import ProfileScreen from '../screens/Perfil/ProfileScreen';
-// import MapScreen from '../screens/Maps/MapScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -26,7 +25,6 @@ const App = () => {
                         iconName = focused ? 'person' : 'person-outline';
                     }
 
-                    // You can return any component that you like here!
                     return <Ionicons name={iconName} size={size} color={color} />;
                 },
                 tabBarActiveTintColor: '#5597c8',

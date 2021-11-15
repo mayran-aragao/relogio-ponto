@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const baseURL = 'https://pontomobile.armazemparaiba.com.br/'
-// const baseURL = 'http://172.16.45.121:3003'
+// const baseURL = 'https://pontomobile.armazemparaiba.com.br/'
+const baseURL = 'http://172.16.45.121:3003'
 
 function timeout(ms, promise) {
     return new Promise(function (resolve, reject) {
@@ -33,7 +33,7 @@ const request = async (method, endpoint, params, token = null) => {
     if (token) {
         headers.Authorization = `Bearer ${token}`
     }
-    let json = timeout(7000, fetch(fullUrl, { method, headers, body })).then(async (response) => {
+    let json = timeout(15000, fetch(fullUrl, { method, headers, body })).then(async (response) => {
         let json = await response.json()
         return json
     }).catch(async (error) => {
@@ -47,10 +47,6 @@ const request = async (method, endpoint, params, token = null) => {
 export default {
     getToken: async () => {
         return await AsyncStorage.getItem('token')
-    },
-    getOtilio: async () => {
-        let json = await request('get', 'users/paulootilio')
-        return json
     },
     getUser: async () => {
         return await AsyncStorage.getItem('user')

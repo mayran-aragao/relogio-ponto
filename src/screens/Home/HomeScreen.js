@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StatusBar, Platform, ActivityIndicator, PermissionsAndroid, View } from 'react-native';
+import { StatusBar, Platform, ActivityIndicator, PermissionsAndroid } from 'react-native';
 import { Divider, Button, ListItem, Overlay } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useStateValue } from '../../contexts/StateContext'
@@ -54,28 +54,32 @@ const HomeScreen = ({ navigation }) => {
     const FirstPoint = useRef()
     const SecondPoint = useRef()
 
-    useEffect(() => {
-        if (register != "") {
-            ListElement.current.animate('bounceInLeft', 1900)
-        }else {
-            IconElement.current.animate('bounceInLeft', 1900)
-        }
-    }, [register])
+    // useEffect(() => {
+    //     if (register != "") {
+    //         ListElement.current.animate('fadeInLeft', 1900)
+    //     } else {
+    //         IconElement.current.animate('fadeInLeft', 1900)
+    //     }
+    // }, [register])
 
     useEffect(() => {
-        SecondsElement.current.animate('bounceInLeft', 1500)
-        MinutesElement.current.animate('bounceInLeft', 1700)
-        HoursElement.current.animate('bounceInLeft', 1900)
-        TextElement.current.animate('bounceInLeft', 1900)
-        ButtonElement.current.animate('bounceInLeft', 1900)
-        
-
-        FirstPoint.current.animate('bounceInLeft', 1800)
-        SecondPoint.current.animate('bounceInLeft', 1600)
-
         verifyDevMode()
         getMyLocation()
         chargeRegister()
+        SecondsElement.current.animate('fadeIn', 1500)
+        MinutesElement.current.animate('fadeIn', 1700)
+        HoursElement.current.animate('fadeIn', 1900)
+        TextElement.current.animate('fadeIn', 1900)
+        ButtonElement.current.animate('fadeIn', 1900)
+
+        FirstPoint.current.animate('fadeIn', 1800)
+        SecondPoint.current.animate('fadeIn', 1600)
+
+        if (register != "") {
+            ListElement.current.animate('fadeIn', 1900)
+        } else {
+            IconElement.current.animate('fadeIn', 1900)
+        }
 
         let data = new Date()
         let day = data.getDate()
@@ -153,19 +157,19 @@ const HomeScreen = ({ navigation }) => {
     const chargeRegister = async () => {
         let data = moment(new Date()).format('YYYY-MM-DD')
         const res = await api.getRegister(data, data, user.matricula)
-        if (res.error) {
-            return
+        if (!res.error) {
+            let newList = [...res]
+            newList.sort((a, n) => (a.hr_ponto < n.hr_ponto ? 1 : n.hr_ponto < a.hr_ponto ? -1 : 0))
+            dispatch({ type: 'setRegister', payload: { register: JSON.stringify(newList) } })
+            setRegister(newList)
         }
-        dispatch({ type: 'setRegister', payload: { register: JSON.stringify(res) } })
-        setRegister(res.slice(0).reverse())
     }
     const chargeNotification = async () => {
         const res = await api.getNotification()
-        if (!res) {
-            return
+        if (res) {
+            dispatch({ type: 'setNotifications', payload: { notifications: res } })
+            setSchedule(JSON.parse(res))
         }
-        dispatch({ type: 'setNotifications', payload: { notifications: res } })
-        setSchedule(JSON.parse(res))
     }
 
     const getMyLocation = async () => {
@@ -241,7 +245,7 @@ const HomeScreen = ({ navigation }) => {
                 let matricula = user.matricula
                 let nr_pis = user.nr_pis
                 let dt_ponto = `${year}-${month}-${day}`
-                let hr_ponto = `${hours}.${minute < 10 ? "0" + minute : minute}`
+                let hr_ponto = `${hours < 10 ? "0" + hours : hours}.${minute < 10 ? "0" + minute : minute}`
                 let res = await api.getNsr(moment(dt_ponto, "YYYY-MM-DD").format('YYYY-MM-DD'), nr_rep)
                 if (res.error) {
                     setShowAlert(true)
@@ -251,8 +255,9 @@ const HomeScreen = ({ navigation }) => {
                 let nsr = parseInt(res.nsr) + 1
                 nsr = ("0000000000" + nsr.toString()).slice(-10)
 
+                let autorizante = user.autorizante
                 let cd_chave = `${year}${month}${day}${nr_rep}${nsr}${user.nr_pis}`
-                let dado = { cd_chave, cd_empresa, nr_cgc, nr_rep, matricula, dt_ponto, hr_ponto, nsr, nr_pis, location }
+                let dado = { cd_chave, cd_empresa, nr_cgc, nr_rep, matricula, dt_ponto, hr_ponto, nsr, nr_pis, location, autorizante }
                 let response = await api.saveRegister(dado)
                 if (response.error === '') {
 
@@ -363,7 +368,6 @@ const HomeScreen = ({ navigation }) => {
                     titleStyle={{ color: "#5597c8" }}
                     containerStyle={{ width: "100%", padding: 10 }}
                     buttonStyle={{ borderColor: "#5597c8" }}
-                    // onPress={() => { getMyLocation(), setShow(true) }}
                     onPress={() => { setShow(true) }}
                 />
             </Animatable.View>
@@ -444,7 +448,7 @@ const HomeScreen = ({ navigation }) => {
                     confirmButtonColor="#5597c8"
                     onCancelPressed={() => setShowAlert(false)}
                     onConfirmPressed={() => setShowAlert(false)}
-                    onDismiss={()=> setShowAlert(false)}
+                    onDismiss={() => setShowAlert(false)}
                     contentContainerStyle={{ width: "100%" }}
                     actionContainerStyle={{ justifyContent: "space-around" }}
                     cancelButtonStyle={{ height: 35, width: "100%", justifyContent: 'center', alignItems: "center" }}
@@ -465,7 +469,7 @@ const HomeScreen = ({ navigation }) => {
                     confirmButtonColor="#5597c8"
                     onCancelPressed={() => setShow(false)}
                     onConfirmPressed={() => { sendRegister() }}
-                    onDismiss={()=> setShow(false)}
+                    onDismiss={() => setShow(false)}
                     contentContainerStyle={{ width: "100%" }}
                     actionContainerStyle={{ justifyContent: "space-around" }}
                     cancelButtonStyle={{ height: 35, width: "100%", justifyContent: 'center', alignItems: "center" }}

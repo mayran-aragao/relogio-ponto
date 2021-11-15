@@ -5,7 +5,6 @@ import { ActivityIndicator } from 'react-native'
 import moment from 'moment'
 import Alerta from 'react-native-awesome-alerts';
 import api from '../../api'
-import Lista from '../../components/Lista'
 import * as Animatable from 'react-native-animatable';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {
@@ -89,11 +88,9 @@ const Calendar = () => {
     const clearSearch = () => {
         setRegistros(null)
         setSelectedStartDate(null)
-        setSelectedEndDate(null) 
+        setSelectedEndDate(null)
     }
     const viewReport = (item) => {
-        // let dias =[...new Set(b.map(a=>a.dt_ponto))]     exemplo
-        // registros.filter(a => a.dt_ponto == dias[0])
 
         let hr_pontos = (registros.filter(a => a.dt_ponto == item)).slice(0).reverse()
         setHorarios(hr_pontos)
@@ -207,9 +204,7 @@ const Calendar = () => {
 
                                 />
                             </Animated.View>
-                        }
-                            // <Lista data={item} index={index} lista={registros} viewAction={() => viewReport(item)} />
-                        }
+                        }}
                         keyExtractor={item => item}
                     />
                 </>
@@ -241,7 +236,7 @@ const Calendar = () => {
                         titleStyle={{ color: '#5597c8' }}
                         containerStyle={{ width: "100%", padding: 10 }}
                         buttonStyle={{ borderColor: '#5597c8' }}
-                        onPress={() => { clearSearch()}}
+                        onPress={() => { clearSearch() }}
                     />
                 </Div>
             }

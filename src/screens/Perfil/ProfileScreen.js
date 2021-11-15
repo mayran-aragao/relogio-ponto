@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef, memo } from 'react';
-import { TouchableHighlight, ActivityIndicator, View } from 'react-native';
+import { TouchableHighlight, ActivityIndicator } from 'react-native';
 import { Button, Avatar, Tooltip, Text, Input, Overlay, ListItem, Card } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'react-native-image-picker';
 import { useStateValue } from '../../contexts/StateContext'
 import Alerta from 'react-native-awesome-alerts';
-import moment, { duration } from 'moment';
-import { check, PERMISSIONS, RESULTS, request, requestMultiple } from 'react-native-permissions'
+import moment from 'moment';
+import { PERMISSIONS, requestMultiple } from 'react-native-permissions'
 import PushNotification from "react-native-push-notification";
 import * as Animatable from 'react-native-animatable';
 import {
@@ -79,7 +79,6 @@ const ProfileScreen = ({ navigation }, props) => {
                     title: "Ponto digital",
                     message: "Está quase na hora de registrar o ponto", // (required)
                     date: notif, // in 60 secs
-                    // id: a
                 });
             }
             if (a > now) {
@@ -89,20 +88,16 @@ const ProfileScreen = ({ navigation }, props) => {
                     title: "Ponto digital",
                     message: "Está quase na hora de registrar o ponto", // (required)
                     date: notif, // in 60 secs
-                    // id: 1
                 });
             }
 
         })
-        // PushNotification.getScheduledLocalNotifications((info) => { console.log(info) })
     }
 
     const pickImage = async () => {
         requestMultiple([PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE, PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE]).then((statuses) => { });
         ImagePicker.launchImageLibrary({
             mediaTypes: 'photo',
-            // maxWidth: 500,
-            // maxHeight: 250,
             quality: 1,
             includeBase64: true
         }, async (res) => {

@@ -102,10 +102,8 @@ export const Div = styled.View`
 export const DivImage = styled.View`
     position: absolute;
     bottom: 20px;
-    /* background-color: #fff; */
     width: 80px;
     height: 80px;
-    /* border: 1px solid #fff; */
     border-radius: 40px;
     justify-content: center;
     align-items: center;
