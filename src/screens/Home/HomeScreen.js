@@ -239,7 +239,7 @@ const HomeScreen = ({ navigation }) => {
                 setLoading(true)
                 let data = new Date()
                 let month = data.getMonth() + 1
-                let nr_rep = ("00000000000000000" + user.matricula).slice(-17)
+                let nr_rep = user.matricula.padStart(17,0)
                 let cd_empresa = user.cd_empresa
                 let nr_cgc = user.cnpj
                 let matricula = user.matricula
@@ -253,7 +253,7 @@ const HomeScreen = ({ navigation }) => {
                     setLoading(false)
                 }
                 let nsr = parseInt(res.nsr) + 1
-                nsr = ("0000000000" + nsr.toString()).slice(-10)
+                nsr = nsr.toString().padStart(10,0)
 
                 let autorizante = user.autorizante
                 let cd_chave = `${year}${month}${day}${nr_rep}${nsr}${user.nr_pis}`
